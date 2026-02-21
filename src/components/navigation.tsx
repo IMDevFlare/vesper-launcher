@@ -23,10 +23,10 @@ export function Navigation() {
             Features
           </a>
           <a href="#system" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            System
+            Requirements
           </a>
           <button className="px-4 py-2 text-sm font-medium bg-foreground text-background rounded-md hover:ring-2 hover:ring-accent/50 hover:bg-foreground/90 transition-all">
-            Launch Terminal
+            Download for Windows
           </button>
         </nav>
       </div>

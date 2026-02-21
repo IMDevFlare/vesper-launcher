@@ -33,7 +33,7 @@ export default function Home() {
           <p>© {new Date().getFullYear()} Vesper.init()</p>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#00FF41] animate-pulse" />
-            <span>Connection Secure</span>
+            <span>Auth Services Online</span>
           </div>
         </div>
       </footer>

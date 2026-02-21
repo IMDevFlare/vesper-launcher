@@ -11,26 +11,26 @@ import { cn } from "../lib/utils";
 
 const features = [
   {
-    title: "Lightning Fast",
-    description: "Powered by Bun and Next.js 16 App Router for instant loading times.",
+    title: "Instant Launch",
+    description: "Bypasses unnecessary electron bloat. Launch your game instantly, directly into the server.",
     icon: BoltIcon,
     className: "col-span-1 md:col-span-2 row-span-2",
   },
   {
-    title: "Type Safe",
-    description: "Strict TypeScript configuration out of the box.",
+    title: "Mod Support",
+    description: "Native integrations with Modrinth and CurseForge for painless installation.",
     icon: CodeBracketIcon,
     className: "col-span-1",
   },
   {
     title: "Vesper Aesthetics",
-    description: "Sleek, eye-catching design language inspired by modern developer tooling.",
+    description: "A distraction-free, sleek interface built for the modern power user.",
     icon: CubeTransparentIcon,
     className: "col-span-1",
   },
   {
-    title: "Secure Core",
-    description: "Enterprise grade security defaults.",
+    title: "Microsoft Security",
+    description: "Full Microsoft Authentication flow powered by secure OAuth with zero telemetry tracking.",
     icon: ShieldCheckIcon,
     className: "col-span-1 md:col-span-2",
   },

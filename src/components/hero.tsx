@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircleIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 
 export function Hero() {
   return (
@@ -16,7 +16,7 @@ export function Hero() {
       >
         <CheckCircleIcon className="w-4 h-4 text-accent" />
         <span className="text-xs font-mono font-medium tracking-wide text-muted-foreground uppercase">
-          System Operational
+          Minecraft 1.21 Ready
         </span>
       </motion.div>
 
@@ -26,7 +26,7 @@ export function Hero() {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="text-5xl md:text-7xl font-bold text-center tracking-tight text-foreground max-w-4xl"
       >
-        Engineered for <span className="text-accent italic">Efficiency</span>
+        Designed for <span className="text-accent italic">Performance</span>
       </motion.h1>
 
       <motion.p
@@ -35,8 +35,8 @@ export function Hero() {
         transition={{ duration: 0.6, delay: 0.3 }}
         className="mt-6 text-lg md:text-xl text-muted-foreground text-center max-w-2xl"
       >
-        High-utility terminal interface designed to deploy Next.js applications
-        at breakneck speeds. Sleek, minimal, and fully typed.
+        A sleek, highly optimized Minecraft launcher built for power users. 
+        Forget bloated UIs. Just raw speed and modularity.
       </motion.p>
       
       <motion.div
@@ -45,9 +45,9 @@ export function Hero() {
         transition={{ duration: 0.6, delay: 0.4 }}
         className="mt-10 flex items-center justify-center gap-4"
       >
-        <div className="flex items-center gap-3 px-6 py-3 rounded-lg bg-foreground text-background shadow-lg border-2 border-transparent hover:border-accent/40 font-mono text-sm relative overflow-hidden group transition-all">
-          <span className="relative z-10 text-background/60 dark:text-background/80">$</span>
-          <span className="relative z-10 font-mono">bun create next-app my-app</span>
+        <div className="flex items-center gap-3 px-6 py-3 rounded-lg bg-foreground text-background shadow-lg border-2 border-transparent hover:border-accent/40 font-mono text-sm relative overflow-hidden group transition-all cursor-pointer">
+          <ArrowDownTrayIcon className="w-5 h-5 text-background" />
+          <span className="relative z-10 font-mono font-semibold">curl -sSfL https://vesper.devflare.de/install | sh</span>
         </div>
       </motion.div>
     </section>
