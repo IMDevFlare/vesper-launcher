@@ -64,7 +64,7 @@ export function useLauncher() {
         await invoke<string>('download_manifest');
         
         setState('LAUNCH');
-      } catch (err: any) {
+      } catch (err: unknown) {
         setLogs(prev => [...prev, `[ERROR] Init failed: ${err}`]);
         setState('IDLE');
       }
@@ -72,7 +72,7 @@ export function useLauncher() {
       try {
         setState('ACTIVE');
         await invoke('launch_game', { version: selectedVersion, ram });
-      } catch (err: any) {
+      } catch (err: unknown) {
         setLogs(prev => [...prev, `[ERROR] Launch failed: ${err}`]);
         setState('IDLE');
       }

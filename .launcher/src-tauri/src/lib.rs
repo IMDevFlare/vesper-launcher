@@ -6,6 +6,43 @@ use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use std::fs;
 use std::path::PathBuf;
+use serde::{Deserialize, Serialize};
+use std::sync::Mutex;
+
+mod instance_manager;
+use instance_manager::{Instance, InstanceManager};
+
+#[derive(Default, Serialize, Deserialize)]
+struct GameState {
+    username: String,
+    uuid: String,
+    access_token: String,
+}
+
+struct AppState {
+    game: Mutex<GameState>,
+    instance_manager: Mutex<InstanceManager>,
+}
+
+#[tauri::command]
+async fn get_instances(state: tauri::State<'_, AppState>) -> Result<Vec<Instance>, String> {
+    state.instance_manager.lock().unwrap().get_instances()
+}
+
+#[tauri::command]
+async fn create_instance(state: tauri::State<'_, AppState>, instance: Instance) -> Result<(), String> {
+    state.instance_manager.lock().unwrap().create_instance(instance)
+}
+
+#[tauri::command]
+async fn delete_instance(state: tauri::State<'_, AppState>, slug: String) -> Result<(), String> {
+    state.instance_manager.lock().unwrap().delete_instance(&slug)
+}
+
+#[tauri::command]
+async fn update_instance(state: tauri::State<'_, AppState>, instance: Instance) -> Result<(), String> {
+    state.instance_manager.lock().unwrap().update_instance(instance)
+}
 
 fn get_minecraft_path() -> Option<PathBuf> {
     let mut path = dirs::data_dir()?;
@@ -58,20 +95,101 @@ async fn download_manifest() -> Result<String, String> {
 }
 
 #[tauri::command]
-async fn launch_game(app: AppHandle, version: String, ram: String) -> Result<(), String> {
+async fn launch_game(app: AppHandle, state: tauri::State<'_, AppState>, version: String, ram: String) -> Result<(), String> {
     let _ = app.emit("game-log", format!("[INFO] Starting launch sequence for {} with {}...", version, ram));
     
+    let mc_path = get_minecraft_path().ok_or("No data dir found")?;
+    let version_dir = mc_path.join("versions").join(&version);
+    let json_path = version_dir.join(format!("{}.json", version));
+    
+    if !json_path.exists() {
+        return Err(format!("Version JSON not found at {:?}", json_path));
+    }
+
+    let json_content = fs::read_to_string(&json_path).map_err(|e| e.to_string())?;
+    let version_data: serde_json::Value = serde_json::from_str(&json_content).map_err(|e| e.to_string())?;
+
+    let main_class = version_data["mainClass"].as_str().ok_or("Missing mainClass in JSON")?;
+    
+    // Build Classpath
+    let mut classpath_parts = Vec::new();
+    
+    // Add libraries
+    if let Some(libraries) = version_data["libraries"].as_array() {
+        for lib in libraries {
+            if let Some(downloads) = lib.get("downloads") {
+                if let Some(artifact) = downloads.get("artifact") {
+                    if let Some(path) = artifact.get("path") {
+                        let lib_path = mc_path.join("libraries").join(path.as_str().unwrap());
+                        if lib_path.exists() {
+                            classpath_parts.push(lib_path);
+                        }
+                    }
+                }
+            } else if let Some(name) = lib.get("name") {
+                // Handle libraries without explicit 'paths' (older versions)
+                let parts: Vec<&str> = name.as_str().unwrap().split(':').collect();
+                if parts.len() == 3 {
+                    let group = parts[0].replace('.', "/");
+                    let name = parts[1];
+                    let version = parts[2];
+                    let lib_path = mc_path.join("libraries")
+                        .join(group)
+                        .join(name)
+                        .join(version)
+                        .join(format!("{}-{}.jar", name, version));
+                    if lib_path.exists() {
+                        classpath_parts.push(lib_path);
+                    }
+                }
+            }
+        }
+    }
+
+    // Add main jar
+    let main_jar = version_dir.join(format!("{}.jar", version));
+    if main_jar.exists() {
+        classpath_parts.push(main_jar);
+    }
+
+    let separator = if cfg!(target_os = "windows") { ";" } else { ":" };
+    let classpath = classpath_parts.iter()
+        .map(|p| p.to_string_lossy())
+        .collect::<Vec<_>>()
+        .join(separator);
+
+    let (username, uuid, token) = {
+        let g = state.game.lock().unwrap();
+        (g.username.clone(), g.uuid.clone(), g.access_token.clone())
+    };
+
+    if token.is_empty() {
+        let _ = app.emit("game-log", "[WARN] No session token found. Launching in offline mode?");
+    }
+
     let mut cmd = tokio::process::Command::new("java");
-    cmd.arg("-Xmx".to_owned() + &ram)
-       .arg("-version");
-       
+    cmd.arg(format!("-Xmx{}", ram))
+       .arg("-Djava.library.path=".to_owned() + &version_dir.join("natives").to_string_lossy())
+       .arg("-cp")
+       .arg(classpath)
+       .arg(main_class)
+       .arg("--username").arg(&username)
+       .arg("--version").arg(&version)
+       .arg("--gameDir").arg(&mc_path)
+       .arg("--assetsDir").arg(mc_path.join("assets"))
+       .arg("--assetIndex").arg(version_data["assetIndex"]["id"].as_str().unwrap_or("legacy"))
+       .arg("--uuid").arg(&uuid)
+       .arg("--accessToken").arg(&token)
+       .arg("--userType").arg("msa")
+       .arg("--versionType").arg("release");
+
     cmd.stdout(Stdio::piped())
        .stderr(Stdio::piped());
        
     let mut child = match cmd.spawn() {
         Ok(c) => c,
         Err(e) => {
-            let _ = app.emit("game-log", format!("[ERROR] Failed to start Java: {}", e));
+            let _ = app.emit("game-log", format!("[ERROR] Failed to start Java: {}. Make sure Java is in your PATH.", e));
             return Err(e.to_string());
         }
     };
@@ -99,7 +217,7 @@ async fn launch_game(app: AppHandle, version: String, ram: String) -> Result<(),
 }
 
 #[tauri::command]
-async fn start_microsoft_oauth(app: AppHandle) -> Result<String, String> {
+async fn start_microsoft_oauth(app: AppHandle, state: tauri::State<'_, AppState>) -> Result<String, String> {
     let client = reqwest::Client::new();
     let client_id = "00000000402b5328";
 
@@ -226,17 +344,28 @@ async fn start_microsoft_oauth(app: AppHandle) -> Result<String, String> {
         .send().await.map_err(|e| e.to_string())?
         .json().await.map_err(|e| e.to_string())?;
         
+    let id = profile_res["id"].as_str().unwrap_or("");
     let name = profile_res["name"].as_str().unwrap_or("Steve");
+
+    {
+        let mut g_state = state.game.lock().unwrap();
+        g_state.username = name.to_string();
+        g_state.uuid = id.to_string();
+        g_state.access_token = mc_token.to_string();
+    }
 
     let _ = app.emit("game-log", format!("[INFO] Logged in successfully: {}", name));
 
-    // For now we just return the name to show it visually
     Ok(name.to_string())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(AppState {
+            game: Mutex::new(GameState::default()),
+            instance_manager: Mutex::new(InstanceManager::new()),
+        })
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_log::Builder::new().build())
@@ -245,7 +374,11 @@ pub fn run() {
             scan_installed_versions,
             download_manifest,
             launch_game,
-            start_microsoft_oauth
+            start_microsoft_oauth,
+            get_instances,
+            create_instance,
+            delete_instance,
+            update_instance
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

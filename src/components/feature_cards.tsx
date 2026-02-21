@@ -12,7 +12,7 @@ import { cn } from "../lib/utils";
 const features = [
   {
     title: "Instant Launch",
-    description: "Bypasses unnecessary electron bloat. Launch your game instantly, directly into the server.",
+    description: "Bypasses unnecessary Electron bloat. Launch your game instantly, directly into the server.",
     icon: BoltIcon,
     className: "col-span-1 md:col-span-2 row-span-2",
   },

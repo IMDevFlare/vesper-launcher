@@ -3,6 +3,7 @@
 import { Navigation } from "../components/navigation";
 import { Hero } from "../components/hero";
 import { FeatureCards } from "../components/feature_cards";
+import { SystemRequirements } from "../components/SystemRequirements";
 
 export default function Home() {
   return (
@@ -26,6 +27,7 @@ export default function Home() {
       <main className="flex-1 w-full pt-16">
         <Hero />
         <FeatureCards />
+        <SystemRequirements />
       </main>
 
       <footer className="py-8 text-center text-sm text-muted-foreground border-t border-border/50 bg-muted/10 backdrop-blur-sm mt-10">

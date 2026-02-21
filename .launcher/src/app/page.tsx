@@ -7,6 +7,7 @@ import { HardwareMonitor } from '@/components/HardwareMonitor';
 import { SettingsOverlay } from '@/components/SettingsOverlay';
 import { useLauncher } from '@/hooks/useLauncher';
 import { Package, Blocks, Cpu, Settings } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Home() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -30,7 +31,7 @@ export default function Home() {
       <main className="min-h-screen w-full flex flex-col p-[2px] vesper-halo bg-vesper-charcoal rounded-xl overflow-hidden relative select-none items-center justify-center">
         <div className="absolute top-0 left-0 right-0 h-1 bg-vesper-glow/40 shadow-[0_0_80px_20px_rgba(209,145,60,0.2)]" />
         
-        <div className="flex flex-col items-center justify-center p-14 rounded-2xl bg-[#050505]/90 backdrop-blur-3xl z-10 border border-gray-800 shadow-2xl">
+        <div className="flex flex-col items-center justify-center p-14 rounded-2xl bg-vesper-charcoal/90 backdrop-blur-3xl z-10 border border-gray-800 shadow-2xl">
           <h1 className="text-5xl font-extrabold tracking-tight text-white mb-4 flex items-center gap-3">
             Vesper.<span className="text-gradient">init()</span>
           </h1>
@@ -65,8 +66,8 @@ export default function Home() {
           <div className="flex items-center gap-6">
             <HardwareMonitor />
             
-            <div className="flex items-center gap-3 bg-zinc-900 border border-[#D1913C] rounded-xl p-1.5 shadow-[0_0_15px_rgba(209,145,60,0.3)]">
-               <img src={`https://minotar.net/helm/${launcher.playerName}/40.png`} alt="Player" className="w-8 h-8 rounded-lg pixelated" style={{ imageRendering: 'pixelated' }} />
+            <div className="flex items-center gap-3 bg-zinc-900 border border-vesper-copper-end rounded-xl p-1.5 shadow-[0_0_15px_rgba(209,145,60,0.3)]">
+               <Image src={`https://minotar.net/helm/${launcher.playerName}/40.png`} alt="Player" className="w-8 h-8 rounded-lg pixelated" style={{ imageRendering: 'pixelated' }} width={40} height={40}/>
                <span className="text-white font-bold text-sm pr-3">{launcher.playerName}</span>
             </div>
 
