@@ -15,7 +15,10 @@ const firaCode = Fira_Code({
 
 export const metadata: Metadata = {
   title: "Vesper Launcher",
-  description: "Sleek and modern high-utility terminal",
+  description: "Sleek and modern high-utility minecraft client",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

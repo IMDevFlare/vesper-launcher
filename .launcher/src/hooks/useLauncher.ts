@@ -2,34 +2,73 @@ import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 
+import { v4 as uuidv4 } from 'uuid';
+
 export type LauncherState = 'IDLE' | 'INITIALIZE' | 'LAUNCH' | 'ACTIVE';
+
+export type LoaderType = 'Vanilla' | 'Fabric' | 'NeoForge';
+
+export interface Instance {
+  id: string;
+  name: string;
+  slug: string;
+  version: string;
+  loader: LoaderType;
+  icon: string | null;
+  time_played: number;
+  last_played: number | null;
+}
 
 export function useLauncher() {
   const [state, setState] = useState<LauncherState>('IDLE');
-  const [logs, setLogs] = useState<string[]>([]);
   const [ram, setRam] = useState('4G');
-  const [selectedVersion, setSelectedVersion] = useState('1.21.1');
+  
+  // Real instances state
+  const [instances, setInstances] = useState<Instance[]>([]);
+  const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
+
   const [playerName, setPlayerName] = useState<string | null>(null);
   const [installedVersions, setInstalledVersions] = useState<string[]>([]);
 
+  const fetchInstances = async () => {
+    try {
+      const fetched = await invoke<Instance[]>('get_instances');
+      setInstances(fetched);
+      if (fetched.length > 0 && !selectedInstanceId) {
+        setSelectedInstanceId(fetched[0].id);
+      } else if (fetched.length === 0) {
+        setSelectedInstanceId(null);
+      }
+    } catch (e) {
+      console.error("Failed to fetch instances", e);
+    }
+  };
+
   useEffect(() => {
     const unlisten = listen<string>('game-log', (event) => {
-      setLogs((prev) => [...prev, event.payload]);
+      console.log(event.payload);
     });
 
-    const fetchVersions = async () => {
+    const init = async () => {
       try {
+        const fetched = await invoke<Instance[]>('get_instances');
+        setInstances(fetched);
+        if (fetched.length > 0 && !selectedInstanceId) {
+          setSelectedInstanceId(fetched[0].id);
+        } else if (fetched.length === 0) {
+          setSelectedInstanceId(null);
+        }
+
         const versions = await invoke<string[]>('scan_installed_versions');
         if (versions.length > 0) {
           setInstalledVersions(versions);
-          setSelectedVersion(versions[0]);
         }
       } catch (e) {
-        console.error("Failed to scan versions", e);
+        console.error("Failed to init", e);
       }
     };
     
-    fetchVersions();
+    init();
 
     return () => {
       unlisten.then((f) => f());
@@ -44,8 +83,29 @@ export function useLauncher() {
       }
     } catch (error) {
       console.error("Auth failed:", error);
-      setLogs(prev => [...prev, `[ERROR] Authentication failed: ${error}`]);
     }
+  };
+
+  const createInstance = async (name: string, slug: string, version: string, loader: LoaderType) => {
+    const newInstance: Instance = {
+      id: uuidv4(),
+      name,
+      slug,
+      version,
+      loader,
+      icon: null,
+      time_played: 0,
+      last_played: null,
+    };
+    
+    await invoke('create_instance', { instance: newInstance });
+    await fetchInstances();
+    setSelectedInstanceId(newInstance.id);
+  };
+
+  const deleteInstance = async (slug: string) => {
+    await invoke('delete_instance', { slug });
+    await fetchInstances();
   };
 
   const handleLaunch = async () => {
@@ -53,27 +113,30 @@ export function useLauncher() {
 
     if (state === 'INITIALIZE') {
       try {
-        setLogs(['[INFO] Checking dependencies...']);
+        console.log('[INFO] Checking dependencies...');
         const hasMinecraft = await invoke<boolean>('check_minecraft_dir');
         
         if (!hasMinecraft) {
-           setLogs(prev => [...prev, '[WARN] .minecraft directory not found or unreachable.']);
+           console.log('[WARN] .minecraft directory not found or unreachable.');
         }
 
-        setLogs(prev => [...prev, '[INFO] Downloading version manifest...']);
+        console.log('[INFO] Downloading version manifest...');
         await invoke<string>('download_manifest');
         
         setState('LAUNCH');
       } catch (err: unknown) {
-        setLogs(prev => [...prev, `[ERROR] Init failed: ${err}`]);
+        console.error(`[ERROR] Init failed: ${err}`);
         setState('IDLE');
       }
     } else if (state === 'LAUNCH') {
       try {
+        const selectedInstance = instances.find(i => i.id === selectedInstanceId);
+        if (!selectedInstance) throw new Error("No instance selected");
+
         setState('ACTIVE');
-        await invoke('launch_game', { version: selectedVersion, ram });
+        await invoke('launch_game', { version: selectedInstance.version, ram });
       } catch (err: unknown) {
-        setLogs(prev => [...prev, `[ERROR] Launch failed: ${err}`]);
+        console.error(`[ERROR] Launch failed: ${err}`);
         setState('IDLE');
       }
     }
@@ -81,16 +144,18 @@ export function useLauncher() {
 
   const killProcess = () => {
     // A placeholder for killing the actual process logic
-    setLogs(prev => [...prev, '[INFO] Process terminated by user.']);
+    console.log('[INFO] Process terminated by user.');
     setState('IDLE');
   };
 
   return {
     state,
     setState,
-    logs,
-    selectedVersion,
-    setSelectedVersion,
+    instances,
+    selectedInstanceId,
+    setSelectedInstanceId,
+    createInstance,
+    deleteInstance,
     ram,
     setRam,
     playerName,

@@ -1,37 +1,54 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "vesper-launcher",
-  "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "version": "1.0.0-alpha",
+  "identifier": "de.devflare.vesper",
   "build": {
     "frontendDist": "../out",
     "devUrl": "http://localhost:1420",
-    "beforeDevCommand": "bunx next dev -p 1420",
-    "beforeBuildCommand": "bun run build"
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
   },
   "app": {
     "windows": [
       {
         "title": "Vesper Launcher",
-        "width": 800,
-        "height": 600,
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "maximizable": true,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "center": true,
+        "alwaysOnTop": false,
+        "decorations": true,
+        "visible": true,
+        "transparent": false,
+        "theme": "Dark"
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src blob: data: filesystem: ws: http: https: 'unsafe-eval' 'unsafe-inline'"
     }
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": [
+      "deb",
+      "appimage",
+      "msi",
+      "nsis",
+      "dmg"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "resources": [],
+    "category": "Utility"
   }
 }
