@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { FeatureCards } from "../components/feature_cards";
 import { Hero } from "../components/hero";
-import { SystemRequirements } from "../components/SystemRequirements";
+import { SystemRequirements } from "../components/system_requirements";
 
 export default function Home() {
   return (
