@@ -95,7 +95,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Navigation />
           <main>{children}</main>
-          <Toaster />
+          <Toaster richColors />
           <Footer />
         </ThemeProvider>
       </body>
