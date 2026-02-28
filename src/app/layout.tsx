@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { JetBrains_Mono as FontMono } from "next/font/google";
+import { Geist as FontSans, JetBrains_Mono as FontMono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
@@ -21,7 +21,7 @@ import "./globals.css";
 //   display: "swap",
 // });
 
-const fontSans = FontMono({
+const fontSans = FontSans({
   variable: "--font-v-sans",
   subsets: ["latin"],
 });
