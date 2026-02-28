@@ -1,9 +1,32 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircleIcon, ArrowDownTrayIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import {
+  CheckCircleIcon,
+  ArrowDownTrayIcon,
+  ExclamationTriangleIcon,
+  XCircleIcon,
+} from "@heroicons/react/24/outline";
+import { toast } from "sonner";
+
+const INSTALL_SCRIPT = "curl -sSfL https://vesper.devflare.de/install | sh";
 
 export function Hero() {
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "error">("idle");
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(INSTALL_SCRIPT);
+      setCopyState("copied");
+      setTimeout(() => setCopyState("idle"), 1800);
+    } catch (e) {
+      setCopyState("error");
+      toast.error("Failed to copy install script to clipboard.");
+      setTimeout(() => setCopyState("idle"), 2500);
+    }
+  }
+
   return (
     <section className="relative pt-32 pb-20 px-6 max-w-7xl mx-auto flex flex-col items-center justify-center min-h-[70vh]" id="hero">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl h-64 bg-brand-accent/5 rounded-full blur-[120px] -z-10" />
@@ -20,7 +43,6 @@ export function Hero() {
         </span>
       </motion.div>
 
-      {/* Yellow information box indicating script status */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -49,20 +71,39 @@ export function Hero() {
         transition={{ duration: 0.6, delay: 0.3 }}
         className="mt-6 text-lg md:text-xl text-muted-foreground text-center max-w-2xl"
       >
-        A sleek, highly optimized Minecraft launcher built for power users. 
+        A sleek, highly optimized Minecraft launcher built for power users.
         Forget bloated UIs. Just raw speed and modularity.
       </motion.p>
-      
+
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.4 }}
         className="mt-10 flex items-center justify-center gap-4"
       >
-        <div className="flex items-center gap-3 px-6 py-3 rounded-lg bg-foreground text-background shadow-lg border-2 border-transparent hover:border-brand-accent/40 font-mono text-sm relative overflow-hidden group transition-all cursor-pointer">
-          <ArrowDownTrayIcon className="w-5 h-5 text-background" />
-          <span className="relative z-10 font-mono font-semibold">curl -sSfL https://vesper.devflare.de/install | sh</span>
-        </div>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className={`flex items-center gap-3 font-mono relative overflow-hidden transition-all px-6 py-3 text-sm rounded-lg border-2 border-transparent ${copyState === "copied"
+            ? "bg-green-600 border-green-700 text-background"
+            : copyState === "error"
+              ? "bg-destructive border-destructive text-background"
+              : "bg-foreground text-background hover:border-brand-accent/40"
+            }`}
+          aria-label={copyState === "copied" ? "Copied!" : "Copy install script"}
+          disabled={copyState === "copied"}
+        >
+          {copyState === "copied" ? (
+            <CheckCircleIcon className="w-5 h-5" />
+          ) : copyState === "error" ? (
+            <XCircleIcon className="w-5 h-5" />
+          ) : (
+            <ArrowDownTrayIcon className="w-5 h-5" />
+          )}
+          <span className="relative z-10 font-mono font-semibold">
+            {INSTALL_SCRIPT}
+          </span>
+        </button>
       </motion.div>
     </section>
   );

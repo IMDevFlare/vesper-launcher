@@ -1,7 +1,12 @@
+import { Navigation } from "@/components/navigation";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { JetBrains_Mono as FontMono, Geist as FontSans } from "next/font/google";
 import "./globals.css";
+import { Footer } from "@/components/footer";
+import { Toaster } from "sonner";
 
 // const fontSans = localFont({
 //   src: [
@@ -55,24 +60,24 @@ export const metadata: Metadata = {
     "Custom Minecraft"
   ],
   authors: [
-    { name: "DevFlare", url: "https://devflare.de" }
+    { name: "DevFlare", url: "https://devflare.de" },
   ],
-  openGraph: {
-    title: "Vesper Launcher",
-    description: "Experience Minecraft with enhanced performance and customization using Vesper Launcher.",
-    url: "https://launcher.devflare.de",
-    siteName: "Vesper Launcher",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1901,
-        height: 943,
-        alt: "Vesper Launcher Preview"
-      }
-    ],
-    locale: "en_US",
-    type: "website"
-  },
+  // openGraph: {
+  //   title: "Vesper Launcher",
+  //   description: "Experience Minecraft with enhanced performance and customization using Vesper Launcher.",
+  //   url: "https://launcher.devflare.de",
+  //   siteName: "Vesper Launcher",
+  //   images: [
+  //     {
+  //       url: "/og-image.png",
+  //       width: 1901,
+  //       height: 943,
+  //       alt: "Vesper Launcher Preview"
+  //     }
+  //   ],
+  //   locale: "en_US",
+  //   type: "website"
+  // },
 };
 
 export default function RootLayout({
@@ -85,8 +90,13 @@ export default function RootLayout({
       <body
         className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased min-h-screen bg-background text-foreground`}
       >
+        <SpeedInsights />
+        <Analytics />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
+          <Navigation />
+          <main>{children}</main>
+          <Toaster />
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

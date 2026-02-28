@@ -1,12 +1,9 @@
 "use client";
 
-import { Navigation } from "../components/navigation";
-import { Hero } from "../components/hero";
+import { Button } from "@/components/ui/button";
 import { FeatureCards } from "../components/feature_cards";
+import { Hero } from "../components/hero";
 import { SystemRequirements } from "../components/SystemRequirements";
-import { Analytics } from "@vercel/analytics/next"
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Footer } from "@/components/footer";
 
 export default function Home() {
   return (
@@ -24,18 +21,12 @@ export default function Home() {
 
       {/* Vesper Ambient Glow */}
       <div className="fixed top-0 left-1/4 w-96 h-96 bg-brand-accent/5 rounded-full blur-[150px] -z-10 pointer-events-none" />
-
-      <SpeedInsights />
-      <Analytics />
-      <Navigation />
-
       <main className="flex-1 w-full pt-16">
         <Hero />
         <FeatureCards />
         <SystemRequirements />
       </main>
 
-      <Footer />
     </div>
   );
 }
