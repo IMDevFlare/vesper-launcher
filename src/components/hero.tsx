@@ -45,23 +45,11 @@ export function Hero() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.1 }}
         className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-muted/50 backdrop-blur-sm mb-8"
-      >
-        <CheckCircleIcon className="w-4 h-4 text-brand-accent" />
-        <span className="text-xs font-mono font-medium tracking-wide text-muted-foreground uppercase">
-          Minecraft 1.21 Ready
-        </span>
-      </motion.div>
-
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.15 }}
-        className="flex items-center gap-2 px-4 py-2 rounded-md border border-yellow-400 bg-yellow-100 text-yellow-800 mb-6"
         role="alert"
       >
-        <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />
-        <span className="font-mono text-sm font-medium">
-          The install script is <span className="font-bold">not working yet</span>, as the launcher is still in development.
+        <ExclamationTriangleIcon className="w-4 h-4 text-yellow-500" />
+        <span className="text-xs font-mono font-medium tracking-wide text-yellow-400 uppercase">
+          Install script not working yet
         </span>
       </motion.div>
 
