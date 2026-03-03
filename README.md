@@ -1,3 +1,6 @@
+
+> ⚠️ This project is paused for the next some weeks
+
 # Vesper Launcher Website
 
 Welcome to the official website for the **Vesper Launcher** – a modern Minecraft launcher built for speed, simplicity, and the power user.
