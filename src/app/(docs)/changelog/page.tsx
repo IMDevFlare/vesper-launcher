@@ -1,10 +1,35 @@
 "use client";
 
+import { AlertCircle, Calendar } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Change log data as a structured JS object instead of markdown
 const changelog = [
+  {
+    version: "1.5.0",
+    date: "2026-03-09",
+    changes: [
+      {
+        type: "Added",
+        items: [
+          "Implemented a brand-new Gallery page with a responsive Bento Grid layout and smooth hover effects.",
+          "Introduced a global Command Palette (Cmd+K / Ctrl+K) for instant site-wide navigation.",
+          "Created a dedicated Search page with a high-contrast search bar and a custom hand-drawn title animation.",
+          "Integrated the Satoshi font family for a more premium and modern typography feel.",
+        ],
+      },
+      {
+        type: "Improved",
+        items: [
+          "Refactored the Changelog page with a structured timeline design and categorized badges.",
+          "Enhanced global layout and typography across all pages.",
+        ],
+      },
+    ],
+  },
   {
     version: "1.4.0",
     date: "2026-06-28",
@@ -81,6 +106,13 @@ const changelog = [
   },
 ];
 
+const typeStyles: Record<string, string> = {
+  Added: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20",
+  Improved: "bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500/20",
+  Removed: "bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20",
+  Fixed: "bg-orange-500/10 text-orange-500 border-orange-500/20 hover:bg-orange-500/20",
+};
+
 export default function ChangelogPage() {
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col selection:bg-brand-accent/30 selection:text-brand-accent">
@@ -99,39 +131,75 @@ export default function ChangelogPage() {
       <div className="fixed top-0 left-1/4 w-96 h-96 bg-brand-accent/5 rounded-full blur-[150px] -z-10 pointer-events-none" />
 
       <main className="flex-1 w-full pt-16 flex flex-col items-center">
-        <div className="w-full max-w-2xl px-6 py-12 mx-auto">
-          <h1 className="text-4xl md:text-6xl font-bold text-center mb-8 text-brand-accent">Changelog</h1>
-          <article className="prose prose-invert prose-headings:text-brand-accent prose-hr:border-border prose-li:marker:text-brand-accent prose-a:text-brand-accent prose-table:text-sm prose-table:border-border max-w-none">
-            <p className="mb-6 text-base text-muted-foreground text-center">
-              Notable changes are listed here and in our <Link className="underline text-brand-accent hover:text-brand-accent/80" target="_blank" href="https://github.com/IMDevFlare/vesper-website/blob/main/CHANGELOG.md">CHANGELOG.md</Link> on GitHub.<br />
-              Both lists are kept up to date, but may sometimes be different.<br />
-              We use the format of <Link href="https://keepachangelog.com/en/1.1.0/" className="underline text-brand-accent hover:text-brand-accent/80" target="_blank" rel="noopener noreferrer">Keep a Changelog</Link> to note all changes.
+        <div className="w-full max-w-3xl px-6 py-12 mx-auto">
+          <div className="text-center mb-16 space-y-4">
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-brand-accent animate-in fade-in slide-in-from-top-4 duration-1000">
+              Changelog
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+              Follow the evolution of Vesper. Notable changes are listed here and in our{" "}
+              <Link
+                className="text-brand-accent hover:underline decoration-brand-accent/30 transition-all"
+                target="_blank"
+                href="https://github.com/IMDevFlare/vesper-website/blob/main/CHANGELOG.md"
+              >
+                CHANGELOG.md
+              </Link>{" "}
+              on GitHub.
             </p>
-            <ul className="space-y-12">
-              {changelog.map((entry) => (
-                <li key={entry.version} className="mb-8">
-                  <h2 className="text-2xl md:text-3xl font-bold mb-1 text-brand-accent">
-                    {entry.version}{" "}
-                    <span className="ml-2 text-base font-normal text-muted-foreground">
-                      — {entry.date}
-                    </span>
-                  </h2>
-                  {entry.changes.map((change) => (
-                    <div key={change.type} className="mb-3">
-                      <h3 className="text-lg font-semibold mt-4 mb-2">
-                        {change.type}
-                      </h3>
-                      <ul className="list-disc ml-6">
-                        {change.items.map((item, idx) => (
-                          <li key={idx} className="text-base">{item}</li>
-                        ))}
-                      </ul>
+            <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm max-w-lg mx-auto">
+              <AlertCircle className="size-4 shrink-0" />
+              <span>This is the website changelog. Launcher updates coming soon in private beta.</span>
+            </div>
+          </div>
+
+          <div className="relative space-y-12 before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-linear-to-b before:from-brand-accent/50 before:via-brand-accent/20 before:to-transparent">
+            {changelog.map((entry) => (
+              <div key={entry.version} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                {/* Icon */}
+                <div className="flex items-center justify-center w-10 h-10 rounded-full border border-brand-accent/30 bg-background text-brand-accent shadow md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                  <span className="text-xs font-bold">{entry.version.split('.')[0]}</span>
+                </div>
+
+                {/* Content */}
+                <Card className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] border-brand-accent/10 bg-background/50 backdrop-blur-sm hover:border-brand-accent/30 transition-all duration-300">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <CardTitle className="text-2xl font-bold text-brand-accent">
+                        v{entry.version}
+                      </CardTitle>
+                      <Badge variant="outline" className="text-muted-foreground border-muted-foreground/20 flex gap-1 items-center">
+                        <Calendar className="size-3" />
+                        {entry.date}
+                      </Badge>
                     </div>
-                  ))}
-                </li>
-              ))}
-            </ul>
-          </article>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {entry.changes.map((change) => (
+                      <div key={change.type} className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Badge 
+                            variant="secondary" 
+                            className={typeStyles[change.type] || "bg-muted text-muted-foreground"}
+                          >
+                            {change.type}
+                          </Badge>
+                        </div>
+                        <ul className="space-y-2">
+                          {change.items.map((item, idx) => (
+                            <li key={idx} className="text-sm text-foreground/80 leading-relaxed flex gap-2">
+                              <span className="text-brand-accent mt-1.5">•</span>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </div>
         </div>
       </main>
     </div>

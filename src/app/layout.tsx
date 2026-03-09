@@ -3,31 +3,27 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
-import { JetBrains_Mono as FontMono, Geist as FontSans } from "next/font/google";
+import { JetBrains_Mono as FontMono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Footer } from "@/components/footer";
 import { Toaster } from "sonner";
+import { CommandPalette } from "@/components/command-palette";
 
-// const fontSans = localFont({
-//   src: [
-//     {
-//       path: "./fonts/satoshi.woff2",
-//       style: "normal",
-//       weight: "400",
-//     },
-//     {
-//       path: "./fonts/satoshi-italic.woff2",
-//       style: "italic",
-//       weight: "400",
-//     },
-//   ],
-//   variable: "--font-v-sans",
-//   display: "swap",
-// });
-
-const fontSans = FontSans({
+const fontSans = localFont({
+  src: [
+    {
+      path: "../../public/fonts/satoshi.woff2",
+      style: "normal",
+      weight: "400",
+    },
+    {
+      path: "../../public/fonts/satoshi-italic.woff2",
+      style: "italic",
+      weight: "400",
+    },
+  ],
   variable: "--font-v-sans",
-  subsets: ["latin"],
   display: "swap",
 });
 
@@ -48,7 +44,6 @@ export const metadata: Metadata = {
       { url: "/logo.svg", type: "image/svg+xml" },
       { url: "/logo.ico", type: "image/x-icon" }
     ],
-    // apple: "/apple-touch-icon.png"
   },
   keywords: [
     "Minecraft",
@@ -62,22 +57,6 @@ export const metadata: Metadata = {
   authors: [
     { name: "DevFlare", url: "https://devflare.de" },
   ],
-  // openGraph: {
-  //   title: "Vesper Launcher",
-  //   description: "Experience Minecraft with enhanced performance and customization using Vesper Launcher.",
-  //   url: "https://launcher.devflare.de",
-  //   siteName: "Vesper Launcher",
-  //   images: [
-  //     {
-  //       url: "/og-image.png",
-  //       width: 1901,
-  //       height: 943,
-  //       alt: "Vesper Launcher Preview"
-  //     }
-  //   ],
-  //   locale: "en_US",
-  //   type: "website"
-  // },
 };
 
 export default function RootLayout({
@@ -94,6 +73,7 @@ export default function RootLayout({
         <Analytics />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Navigation />
+          <CommandPalette />
           <main>{children}</main>
           <Toaster richColors />
           <Footer />
