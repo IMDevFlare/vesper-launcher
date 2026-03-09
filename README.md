@@ -1,5 +1,5 @@
 
-> ⚠️ This project is paused for the next some weeks
+> ⚠️ This project is not getting updated freqreuntly
 
 # Vesper Launcher Website
 
